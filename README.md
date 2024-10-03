@@ -19,3 +19,6 @@ Place the file in the following directory `~/Library/Application Support/Herd/co
 
 ### For Valet Users
 Place the file in the following directory `~/.config/valet/Drivers` and let the magic do its thing. It's probably best to restart Valet.
+
+## License
+This project is licensed under the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.
