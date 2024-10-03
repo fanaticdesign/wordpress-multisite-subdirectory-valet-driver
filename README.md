@@ -1,7 +1,7 @@
 # WordPress Multisite Sub-directory Herd/Valet Driver
 
 ## Overview
-This is a driver file to be able to have a sub-directory WordPress multisite using when using Laravel Valet or Herd. This will enable you to run a website locally have have separate multisites at https://mylocalsite.test/site-1/ and https://mylocalsite.test/site-2/, and still be able to access the WP CMS for all of the sub-directory sites as well as the multsite network.
+This is a driver file to be able to have a sub-directory WordPress multisite using when using Laravel Valet or Herd. This will enable you to run a website locally have have separate multisites at https://mylocalsite.test/site-1/ and https://mylocalsite.test/site-2/, and still be able to access the WP CMS for all of the sub-directory sites as well as the multisite network.
 
 ## Prerequisites
 You must be using either Valet or Herd for your local development environment:
