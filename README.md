@@ -9,8 +9,6 @@ You must be using either Valet or Herd for your local development environment:
 - Laravel Valet v4+
 - Laravel Herd
 
-**_⚠️ This also assumes that the root of the repo of your local WordPress website is sat inside `/public` and assumes that WordPress Core is installed inside `/public/wp/`. If this is not the case, then this will likely not work and the driver will need further modification._**
-
 ## Installation
 Grab the `WordPressMultisiteSubdirectoryValetDriver.php` file from here.
 
@@ -19,6 +17,17 @@ Place the file in the following directory `~/Library/Application Support/Herd/co
 
 ### For Valet Users
 Place the file in the following directory `~/.config/valet/Drivers` and let the magic do its thing. It's probably best to restart Valet.
+
+## Configuration
+Out of the box, this should support vanilla WordPress multisites that have no custom configuration. However there may be a requirement that your site's public path (relative to the root of the site in Valet or Herd) is in a different directory than usual (e.g. in /public). There may also be a requirement whereby the WordPress Core files are installed in a separate directory as well (e.g. in /public/wp).
+
+If this is the case then please modify the values of `$wpCoreRootPath` and `$rootSitePath` public attributes.
+
+`$rootSitePath` specifies the public path of your website relative to the root of the Valet or Herd site path. For example, a default/vanilla install of WordPress in Herd or Valet, this should be left as a `/`. But if your public files are located in a different directory, then specify it here, e.g. `/public`.
+
+`$wpCoreRootPath` specifies the path to the WordPress Core directory relative to the root of the Valet or Herd site path. For example, a default/vanilla install of WordPress, this should be left as a `/`. But if your WordPress Core files are location in a different directory, then specify it here, e.g. `/public/wp`.
+
+`$wpSiteUrl` specifies the URL path used to login to WordPress. In a vanilla installation of WordPress, this should be left as an empty string. But if your URL is set differently (usually defined in the `WP_SITEURL` constant or within the database), then specify it here (e.g. `/wp`).
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.
