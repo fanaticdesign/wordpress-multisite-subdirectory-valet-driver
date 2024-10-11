@@ -23,9 +23,11 @@ Out of the box, this should support vanilla WordPress multisites that have no cu
 
 If this is the case then please modify the values of `$wpCoreRootPath` and `$rootSitePath` public attributes.
 
+`$rootSitePath` specifies the public path of your website relative to the root of the Valet or Herd site path. For example, a default/vanilla install of WordPress in Herd or Valet, this should be left as a `/`. But if your public files are located in a different directory, then specify it here, e.g. `/public`.
+
 `$wpCoreRootPath` specifies the path to the WordPress Core directory relative to the root of the Valet or Herd site path. For example, a default/vanilla install of WordPress, this should be left as a `/`. But if your WordPress Core files are location in a different directory, then specify it here, e.g. `/public/wp`.
 
-`$rootSitePath` specifies the public path of your website relative to the root of the Valet or Herd site path. For example, a default/vanilla install of WordPress in Herd or Valet, this should be left as a `/`. But if your public files are located in a different directory, then specify it here, e.g. `/public`.
+`$wpSiteUrl` specifies the URL path used to login to WordPress. In a vanilla installation of WordPress, this should be left as an empty string. But if your URL is set differently (usually defined in the `WP_SITEURL` constant or within the database), then specify it here (e.g. `/wp`).
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.
