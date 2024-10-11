@@ -21,7 +21,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
     /**
      * Determine if the driver serves the request.
      */
-    public function serves(string $sitePath): bool
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         // Look for MULTISITE in wp-config.php. It should be there for multisite installs.
         return file_exists($sitePath . $this->rootSitePath . '/wp-config.php') &&
