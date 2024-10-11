@@ -57,7 +57,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
             }
 
             if (!empty($this->wpCoreRootFilePath) && file_exists($sitePath . "{$this->wpCoreRootFilePath}/wp-admin")) {
-                $uri = $this->wpSiteUrl . $uri;
+                $uri = "{$this->wpSiteUrl}" . $uri;
             }
         }
 
@@ -66,7 +66,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
             $new_uri = substr($uri, stripos($uri, '/wp-'));
 
             if (file_exists($sitePath . $this->rootSiteFilePath . $new_uri)) {
-                return $sitePath . $this->rootSiteFilePath . $new_uri;
+                return $this->forceTrailingSlash($sitePath . $this->rootSiteFilePath . $new_uri);
             }
         }
 
@@ -90,11 +90,11 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
             $new_uri = substr($uri, stripos($uri, '/wp-'));
 
             if (!empty($this->wpCoreRootFilePath) && file_exists($sitePath . "{$this->wpCoreRootFilePath}/wp-admin")) {
-                $new_uri = $this->wpSiteUrl . $new_uri;
+                $new_uri = "{$this->wpSiteUrl}" . $new_uri;
             }
 
             if (file_exists($sitePath . $this->rootSiteFilePath . $new_uri)) {
-                return $sitePath . $this->rootSiteFilePath . $new_uri;
+                return $this->forceTrailingSlash($sitePath . $this->rootSiteFilePath . $new_uri);
             }
         }
 
