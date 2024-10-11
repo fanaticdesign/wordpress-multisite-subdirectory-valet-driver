@@ -6,21 +6,31 @@ use Valet\Drivers\BasicWithPublicValetDriver;
 
 class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriver
 {
-    public $wp_root = "wp"; // "wp"
+    /**
+     *  Specifies the path to the WordPress core directory relative to the root of the Valet or Herd site path.
+     *  For example, a default/vanilla install of WordPress, this should be left as a "/". But if your WordPress Core files are location in a different directory, then specify it here, e.g. "/public/wp"
+     */
+    public $wpCoreRootPath = "";
+
+    /**
+     *  Specifies the public path of your website relative to the root of the Valet or Herd site path.
+     *  For example, a default/vanilla install of WordPress in Herd or Valet, this should be left as a "/". But if your public files are located in a different directory, then specify it here, e.g. "/public"
+     */
+    public $rootSitePath = "";
 
     /**
      * Determine if the driver serves the request.
      */
-    public function serves(string $sitePath, string $siteName, string $uri): bool
+    public function serves(string $sitePath): bool
     {
         // Look for MULTISITE in wp-config.php. It should be there for multisite installs.
-        return file_exists($sitePath . '/public/wp-config.php') &&
-            (strpos( file_get_contents($sitePath . '/public/wp-config.php'), 'MULTISITE') !== false) &&
+        return file_exists($sitePath . $this->rootSitePath . '/wp-config.php') &&
+            (strpos(file_get_contents($sitePath . $this->rootSitePath . '/wp-config.php'), 'MULTISITE') !== false) &&
             (
                 //Double check if we are using subdomains.
-                strpos( file_get_contents($sitePath . '/public/wp-config.php'), "define('SUBDOMAIN_INSTALL',false)") ||
-                strpos( file_get_contents($sitePath . '/public/wp-config.php'), "define('SUBDOMAIN_INSTALL', false)") ||
-                strpos( file_get_contents($sitePath . '/public/wp-config.php'), "define( 'SUBDOMAIN_INSTALL', false )")
+                strpos(file_get_contents($sitePath . $this->rootSitePath . '/wp-config.php'), "define('SUBDOMAIN_INSTALL',false)") ||
+                strpos(file_get_contents($sitePath . $this->rootSitePath . '/wp-config.php'), "define('SUBDOMAIN_INSTALL', false)") ||
+                strpos(file_get_contents($sitePath . $this->rootSitePath . '/wp-config.php'), "define( 'SUBDOMAIN_INSTALL', false )")
             );
     }
 
@@ -35,28 +45,30 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
 
         // If URI contains one of the main WordPress directories, and it's not a request for the Network Admin,
         // drop the subdirectory segment before routing the request
-        if ( ( stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false ) ) {
+        if ((stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false)) {
 
-            if ( stripos($uri, 'wp-admin/network') === false ) {
-                $uri = substr($uri, stripos($uri, '/wp-') );
+            if (stripos($uri, 'wp-admin/network') === false) {
+                $uri = substr($uri, stripos($uri, '/wp-'));
             }
 
-            if ( $this->wp_root !== false && file_exists($sitePath . "/public/{$this->wp_root}/wp-admin") ) {
-                $uri = "/{$this->wp_root}" . $uri;
+            if (!empty($this->wpCoreRootPath) && file_exists($sitePath . "{$this->wpCoreRootPath}/wp-admin")) {
+                $uri = "{$this->wpCoreRootPath}" . $uri;
             }
-       	}
+        }
 
         // Handle wp-cron.php properly
-        if ( stripos($uri, 'wp-cron.php') !== false ) {
-            $new_uri = substr($uri, stripos($uri, '/wp-') );
+        if (stripos($uri, 'wp-cron.php') !== false) {
+            $new_uri = substr($uri, stripos($uri, '/wp-'));
 
-            if ( file_exists( $sitePath . '/public' . $new_uri ) ) {
-                return $sitePath . "/public" . $new_uri;
+            if (file_exists($sitePath . $this->rootSitePath . $new_uri)) {
+                return $sitePath . $this->rootSitePath . $new_uri;
             }
         }
 
         return parent::frontControllerPath(
-            $sitePath, $siteName, $this->forceTrailingSlash($uri)
+            $sitePath,
+            $siteName,
+            $this->forceTrailingSlash($uri)
         );
     }
 
@@ -65,23 +77,23 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
      */
     public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
     {
-    	// If the URI contains one of the main WordPress directories and it doesn't end with a slash,
-    	// drop the subdirectory from the URI and check if the file exists. If it does, return the new uri.
-        if ( stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false ) {
-        	if ( substr($uri, -1, 1) == "/" ) return false;
+        // If the URI contains one of the main WordPress directories and it doesn't end with a slash,
+        // drop the subdirectory from the URI and check if the file exists. If it does, return the new uri.
+        if (stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false) {
+            if (substr($uri, -1, 1) == "/") return false;
 
-       		$new_uri = substr($uri, stripos($uri, '/wp-') );
+            $new_uri = substr($uri, stripos($uri, '/wp-'));
 
-            if ( $this->wp_root !== false && file_exists($sitePath . "/public/{$this->wp_root}/wp-admin") ) {
-                $new_uri = "/{$this->wp_root}" . $new_uri;
+            if (!empty($this->wpCoreRootPath) && file_exists($sitePath . "{$this->wpCoreRootPath}/wp-admin")) {
+                $new_uri = "{$this->wpCoreRootPath}" . $new_uri;
             }
 
-            if ( file_exists( $sitePath . '/public' . $new_uri ) ) {
-                return $sitePath . "/public" . $new_uri;
-       		}
-       	}
+            if (file_exists($sitePath . $this->rootSitePath . $new_uri)) {
+                return $sitePath . $this->rootSitePath . $new_uri;
+            }
+        }
 
-        return parent::isStaticFile( $sitePath, $siteName, $uri );
+        return parent::isStaticFile($sitePath, $siteName, $uri);
     }
 
     /**
@@ -90,7 +102,8 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
     private function forceTrailingSlash(string $uri): string
     {
         if (substr($uri, -1 * strlen('/wp-admin')) == '/wp-admin') {
-            header('Location: '.$uri.'/'); die;
+            header('Location: ' . $uri . '/');
+            die;
         }
         return $uri;
     }
