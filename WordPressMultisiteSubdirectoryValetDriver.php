@@ -2,26 +2,26 @@
 
 namespace Valet\Drivers\Custom;
 
-use Valet\Drivers\BasicWithPublicValetDriver;
+use Valet\Drivers\BasicValetDriver;
 
-class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriver
+class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
 {
     /**
      *  Specifies the public file path of your website relative to the root of the Valet or Herd site path.
      *  For example, a default/vanilla install of WordPress in Herd or Valet, this should be left as a "/". But if your public files are located in a different directory, then specify it here, e.g. "/public".
      */
-    public $rootSiteFilePath = "";
+    public $rootSiteFilePath = "/";
 
     /**
      *  Specifies the file path to the WordPress Core directory relative to the root of the Valet or Herd site path.
      *  For example, a default/vanilla install of WordPress, this should be left as a "/". But if your WordPress Core files are location in a different directory, then specify it here, e.g. "/public/wp".
      */
-    public $wpCoreRootFilePath = "";
+    public $wpCoreRootFilePath = "/";
 
     /**
      *  Specifies the URL path used to login to WordPress. In a vanilla installation of WordPress, this should be left as an empty string. But if your URL is set differently (usually defined in the WP_SITEURL constant or within the database), then specify it here (e.g. "/wp").
      */
-    public $wpSiteUrl = "";
+    public $wpSiteUrl = "/";
 
     /**
      * Determine if the driver serves the request.
@@ -57,7 +57,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
             }
 
             if (!empty($this->wpCoreRootFilePath) && file_exists($sitePath . "{$this->wpCoreRootFilePath}/wp-admin")) {
-                $uri = "{$this->wpSiteUrl}" . $uri;
+                $uri = rtrim($this->wpSiteUrl, '/') . $uri;
             }
         }
 
@@ -66,12 +66,12 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
             $new_uri = substr($uri, stripos($uri, '/wp-'));
 
             if (file_exists($sitePath . $this->rootSiteFilePath . $new_uri)) {
-                return $this->forceTrailingSlash($sitePath . $this->rootSiteFilePath . $new_uri);
+                return $this->forceTrailingSlash($sitePath . rtrim($this->rootSiteFilePath, '/') . $new_uri);
             }
         }
 
         return parent::frontControllerPath(
-            $sitePath,
+            $sitePath . $this->rootSiteFilePath,
             $siteName,
             $this->forceTrailingSlash($uri)
         );
@@ -84,13 +84,19 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicWithPublicValetDriv
     {
         // If the URI contains one of the main WordPress directories and it doesn't end with a slash,
         // drop the subdirectory from the URI and check if the file exists. If it does, return the new uri.
-        if (stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false) {
+        if (stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false || stripos($uri, 'wp-login') !== false) {
             if (substr($uri, -1, 1) == "/") return false;
 
             $new_uri = substr($uri, stripos($uri, '/wp-'));
 
             if (!empty($this->wpCoreRootFilePath) && file_exists($sitePath . "{$this->wpCoreRootFilePath}/wp-admin")) {
                 $new_uri = "{$this->wpSiteUrl}" . $new_uri;
+            }
+
+            if(stripos($uri, 'wp-content') !== false) {
+                $strippedSiteUrl = str_replace('/', '', $this->wpSiteUrl);
+                $new_uri = str_replace($strippedSiteUrl . '/', '', $new_uri);
+                $this->forceTrailingSlash($sitePath . $new_uri);
             }
 
             if (file_exists($sitePath . $this->rootSiteFilePath . $new_uri)) {
