@@ -86,17 +86,29 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
         // drop the subdirectory from the URI and check if the file exists. If it does, return the new uri.
         if (stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false || stripos($uri, 'wp-login') !== false) {
             if (substr($uri, -1, 1) == "/") return false;
-
+            
             $new_uri = substr($uri, stripos($uri, '/wp-'));
 
             if (!empty($this->wpCoreRootFilePath) && file_exists($sitePath . "{$this->wpCoreRootFilePath}/wp-admin")) {
                 $new_uri = "{$this->wpSiteUrl}" . $new_uri;
             }
 
+            // wp-content always lives at the site root, even when WordPress core is installed in a
+            // subdirectory (e.g. $wpSiteUrl = "/wp"). The block above prepended the core subdirectory
+            // path to $new_uri, so we need to strip it back out for wp-content requests.
             if(stripos($uri, 'wp-content') !== false) {
+                // Remove all slashes from the site URL to get the bare subdirectory name (e.g. "/wp" → "wp").
                 $strippedSiteUrl = str_replace('/', '', $this->wpSiteUrl);
-                $new_uri = str_replace($strippedSiteUrl . '/', '', $new_uri);
-                $this->forceTrailingSlash($sitePath . $new_uri);
+
+                if(!empty($strippedSiteUrl)) {
+                    // Strip the subdirectory prefix (e.g. "wp/") from the URI so the path resolves
+                    // correctly against the site root rather than the core subdirectory.
+                    $new_uri = str_replace($strippedSiteUrl . '/', '', $new_uri);
+                } else {
+                    // No subdirectory in use; simply ensure there is no leading slash so the path
+                    // can be safely concatenated with $sitePath and $rootSiteFilePath.
+                    $new_uri = ltrim($new_uri, '/');
+                }
             }
 
             if (file_exists($sitePath . $this->rootSiteFilePath . $new_uri)) {
