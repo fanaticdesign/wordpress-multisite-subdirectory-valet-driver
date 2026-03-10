@@ -111,8 +111,8 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
                 }
             }
 
-            if (file_exists($sitePath . $this->rootSiteFilePath . $new_uri)) {
-                return $this->forceTrailingSlash($sitePath . $this->rootSiteFilePath . $new_uri);
+            if (file_exists($sitePath . $this->rootSiteFilePath . '/' . $new_uri)) {
+                return $this->forceTrailingSlash($sitePath . $this->rootSiteFilePath . '/' . $new_uri);
             }
         }
 
