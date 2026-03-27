@@ -21,7 +21,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
     /**
      *  Specifies the URL path used to login to WordPress. In a vanilla installation of WordPress, this should be left as an empty string. But if your URL is set differently (usually defined in the WP_SITEURL constant or within the database), then specify it here (e.g. "/wp").
      */
-    public $wpSiteUrl = "/";
+    public $wpSiteUrl = "";
 
     /**
      * Determine if the driver serves the request.
@@ -50,7 +50,12 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
 
         // If URI contains one of the main WordPress directories, and it's not a request for the Network Admin,
         // drop the subdirectory segment before routing the request
-        if ((stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false)) {
+        if (
+            stripos($uri, 'wp-admin') !== false
+            || stripos($uri, 'wp-content') !== false
+            || stripos($uri, 'wp-includes') !== false
+            || stripos($uri, 'wp-login.php') !== false
+        ) {
 
             if (stripos($uri, 'wp-admin/network') === false) {
                 $uri = substr($uri, stripos($uri, '/wp-'));
