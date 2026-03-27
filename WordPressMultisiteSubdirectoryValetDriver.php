@@ -21,7 +21,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
     /**
      *  Specifies the URL path used to login to WordPress. In a vanilla installation of WordPress, this should be left as an empty string. But if your URL is set differently (usually defined in the WP_SITEURL constant or within the database), then specify it here (e.g. "/wp").
      */
-    public $wpSiteUrl = "/";
+    public $wpSiteUrl = "";
 
     /**
      * Determine if the driver serves the request.
