@@ -126,7 +126,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
     {
         if (str_ends_with($uri, '/wp-admin')) {
             $uri = rtrim($_SERVER['REQUEST_URI'] ?? $uri, '/') . '/';
-            header('Location: ' . $uri);
+            header('Location: ' . $uri, true, 301);
             die;
         }
         return $uri;
