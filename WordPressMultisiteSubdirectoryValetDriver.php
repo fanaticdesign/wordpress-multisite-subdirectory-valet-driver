@@ -124,8 +124,9 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
      */
     private function forceTrailingSlash(string $uri): string
     {
-        if (substr($uri, -1 * strlen('/wp-admin')) == '/wp-admin') {
-            header('Location: ' . $uri . '/');
+        if (str_ends_with($uri, '/wp-admin')) {
+            $uri = rtrim($_SERVER['REQUEST_URI'] ?? $uri, '/') . '/';
+            header('Location: ' . $uri);
             die;
         }
         return $uri;
