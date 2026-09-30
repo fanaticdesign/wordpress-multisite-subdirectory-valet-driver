@@ -61,6 +61,13 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
             }
         }
 
+        // Drop the subdirectory segment from requests for root-level PHP files (wp-login.php)
+        // mirroring WordPress' "^/[_0-9a-zA-Z-]+(/.*\.php)$ -> $1" multisite rewrite
+        if (preg_match('#^/[_0-9a-zA-Z-]+(/[^/]+\.php)$#', $uri, $matches)
+            && file_exists($sitePath . rtrim($this->rootSiteFilePath, '/') . $matches[1])) {
+            $uri = $matches[1];
+        }
+
         // Handle wp-cron.php properly
         if (stripos($uri, 'wp-cron.php') !== false) {
             $new_uri = substr($uri, stripos($uri, '/wp-'));
@@ -86,7 +93,7 @@ class WordPressMultisiteSubdirectoryValetDriver extends BasicValetDriver
         // drop the subdirectory from the URI and check if the file exists. If it does, return the new uri.
         if (stripos($uri, 'wp-admin') !== false || stripos($uri, 'wp-content') !== false || stripos($uri, 'wp-includes') !== false || stripos($uri, 'wp-login') !== false) {
             if (substr($uri, -1, 1) == "/") return false;
-            
+
             $new_uri = substr($uri, stripos($uri, '/wp-'));
 
             if (!empty($this->wpCoreRootFilePath) && file_exists($sitePath . "{$this->wpCoreRootFilePath}/wp-admin")) {
